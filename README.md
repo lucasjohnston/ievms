@@ -6,6 +6,10 @@ in multiple versions of IE, regardless of the host operating system.
 With a single command, you can have IE6, IE7, IE8,
 IE9, IE10, IE11 and MSEdge running in separate virtual machines.
 
+This is a hacked on fork that has been altered to work with the currently available versions and URLs
+for the VMs on Microsoft's site. The original repo can be found [here](https://github.com/xdissent/ievms).
+The linked pledgie is for the original author.
+
 [![Click here to lend your support to ievms and make a donation at pledgie.com!](http://pledgie.com/campaigns/15995.png?skin_name=chrome)](http://pledgie.com/campaigns/15995)
 
 
@@ -14,7 +18,7 @@ Quickstart
 
 Just paste this into a terminal: 
 
-    curl -s https://raw.githubusercontent.com/xdissent/ievms/master/ievms.sh | bash
+    curl -s https://raw.githubusercontent.com/amichaelparker/ievms/master/ievms.sh | bash
 
 
 Requirements
@@ -25,7 +29,7 @@ Requirements
 * Linux Only: unar (Ubuntu: `sudo apt-get install unar`)
 * Patience
 
-**NOTE** Use [ievms version 0.2.1](https://github.com/xdissent/ievms/raw/v0.2.1/ievms.sh) for VirtualBox < 5.0.
+**NOTE** Use [ievms version 0.2.1](https://github.com/amichaelparker/ievms/raw/v0.2.1/ievms.sh) for VirtualBox < 5.0.
 
 
 Installation
@@ -35,13 +39,13 @@ Installation
 
 **2.)** Download and unpack ievms:
 
-   * To install IE versions 6, 7, 8, 9, 10, 11 and EDGE use:
+   * To install IE versions 8, 9, 10, 11 and EDGE use:
 
-        curl -s https://raw.githubusercontent.com/xdissent/ievms/master/ievms.sh | bash
+        curl -s https://raw.githubusercontent.com/amichaelparker/ievms/master/ievms.sh | bash
 
    * To install specific IE versions (IE7, IE9 and EDGE only for example) use:
 
-        curl -s https://raw.githubusercontent.com/xdissent/ievms/master/ievms.sh | env IEVMS_VERSIONS="7 9 EDGE" bash
+        curl -s https://raw.githubusercontent.com/amichaelparker/ievms/master/ievms.sh | env IEVMS_VERSIONS="7 9 EDGE" bash
 
 **3.)** Launch Virtual Box.
 
@@ -67,7 +71,7 @@ Specifying the install path
 
 To specify where the VMs are installed, use the `INSTALL_PATH` variable:
 
-    curl -s https://raw.githubusercontent.com/xdissent/ievms/master/ievms.sh | env INSTALL_PATH="/Path/to/.ievms" bash
+    curl -s https://raw.githubusercontent.com/amichaelparker/ievms/master/ievms.sh | env INSTALL_PATH="/Path/to/.ievms" bash
 
 
 Passing additional options to curl
@@ -76,7 +80,7 @@ Passing additional options to curl
 The `curl` command is passed any options present in the `CURL_OPTS` 
 environment variable. For example, you can set a download speed limit:
 
-    curl -s https://raw.githubusercontent.com/xdissent/ievms/master/ievms.sh | env CURL_OPTS="--limit-rate 50k" bash
+    curl -s https://raw.githubusercontent.com/amichaelparker/ievms/master/ievms.sh | env CURL_OPTS="--limit-rate 50k" bash
 
 
 Disk requirements
@@ -84,7 +88,7 @@ Disk requirements
 
 A full ievms install will require approximately 69G:
 
-    Servo:.ievms xdissent$ du -ch *
+    Servo:.ievms amichaelparker$ du -ch *
      11G    IE10 - Win7-disk1.vmdk
      22M    IE10-Windows6.1-x86-en-us.exe
      11G    IE11 - Win7-disk1.vmdk
@@ -115,7 +119,7 @@ re-downloaded if ievms is run again in the future:
 
 If all installation related files are removed, around 47G is required:
 
-    Servo:.ievms xdissent$ du -ch *
+    Servo:.ievms amichaelparker$ du -ch *
      11G    IE10 - Win7-disk1.vmdk
      11G    IE11 - Win7-disk1.vmdk
     1.5G    IE6 - WinXP-disk1.vmdk
@@ -164,25 +168,9 @@ guest control from the host machine.
 Resuming Downloads
 ------------------
 
-~~If one of the comically large files fails to download, the `curl` 
+~~If one of the comically large files fails to download, the `curl`
 command used will automatically attempt to resume where it left off.~~
 Unfortunately, the modern.IE download servers do not support resume.
-
-
-Reusing XP VMs
---------------
-
-IE7 and IE8 ship from MS on Vista and Win7 respectively. Both of these
-images are far larger than the IE6 XP image, which also technically supports
-IE7 and IE8. To save bandwidth, space and time, ievms will reuse
-(duplicate) the IE6 XP VM image for both. Virtualbox guest control is used
-to run the appropriate IE installer within the VM. The `clean` snapshot
-includes the updated browser version.
-
-**NOTE:** If you'd like to disable XP VM reuse for IE7 and IE8, set the 
-environment variable `REUSE_XP` to anything other than `yes`:
-
-    curl -s https://raw.githubusercontent.com/xdissent/ievms/master/ievms.sh | env REUSE_XP="no" bash
 
 
 Reusing Win7 VMs
@@ -198,11 +186,11 @@ be successfully "rearmed" to extend the activation period.
 **NOTE:** If you'd like to disable Win7 VM reuse for IE10, set the environment 
 variable `REUSE_WIN7` to anything other than `yes`:
 
-    curl -s https://raw.githubusercontent.com/xdissent/ievms/master/ievms.sh | REUSE_WIN7="no" bash
+    curl -s https://raw.githubusercontent.com/amichaelparker/ievms/master/ievms.sh | REUSE_WIN7="no" bash
 
-
-**NOTE:** It is currently impossible to install IE11 **without** reusing the
-Win7 virtual machine.
+**NOTE:** IE10 uses Win7 by default in this fork, and IE11 can use Win7 or Win81
+based on the 'REUSE_WIN7' flag. It currently defaults to 'no', installing with
+Win81.
 
 
 Control ISO
