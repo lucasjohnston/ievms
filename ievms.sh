@@ -18,7 +18,7 @@ curl_opts=${CURL_OPTS:-""}
 reuse_xp=${REUSE_XP:-"yes"}
 
 # Reuse Win7 virtual machines for IE versions that are supported.
-reuse_win7=${REUSE_WIN7:-"yes"}
+reuse_win7=${REUSE_WIN7:-"no"}
 
 # Timeout interval to wait between checks for various states.
 sleep_wait="5"
@@ -73,7 +73,7 @@ download() { # name url path md5
     fi
 
     log "Downloading ${1} from ${2} to ${3} (attempt ${attempt} of ${max})"
-    wget "${2}" || fail "Failed to download ${2} to ${ievms_home}/${3} using 'curl', error code ($?)"
+    curl -O "${2}" || fail "Failed to download ${2} to ${ievms_home}/${3} using 'curl', error code ($?)"
     check_md5 "${3}" "${4}" && return 0
 
     if [ "${attempt}" == "${max}" ]
@@ -207,9 +207,9 @@ find_iso() {
     local dev_iso="${orig_cwd}/ievms-control.iso" # Use local iso if in ievms dev root
     if [[ -f "${dev_iso}" ]]
     then
-        iso="${ievms_home}/ievms-control-${ievms_version}.iso"
+        iso="${ievms_home}/ievms-control.iso"
     else
-        iso="${ievms_home}/ievms-control-${ievms_version}.iso"
+        iso="${ievms_home}/ievms-control.iso"
         download "ievms control ISO" "${url}" "${iso}" "1fe3f95e0731bbcba949564cf9bbe28a"
     fi
 }
@@ -377,8 +377,11 @@ build_ievm() {
     if [ "${os}" == "Win10" ]
     then
         url="https://az792536.vo.msecnd.net/vms/VMBuild_20180425/VirtualBox/MSEdge/MSEdge.Win10.VirtualBox.zip"
+    elif [ "${os}" == "Win81" ]
+    then
+        url="https://az792536.vo.msecnd.net/vms/VMBuild_20180102/VirtualBox/IE11/IE11.Win81.VirtualBox.zip"
     else
-        url="https://az792536.vo.msecnd.net/vms/VMBuild_20150916/VirtualBox/${prefix}${version}/${def_archive}"
+        url="https://az792536.vo.msecnd.net/vms/VMBuild_20150916/VirtualBox/${prefix}${version}/${archive}"
     fi
 
     local md5
@@ -437,19 +440,19 @@ build_ievm_ie9() {
 
 # Build the IE10 virtual machine, reusing the Win7 VM if requested (the default).
 build_ievm_ie10() {
-    if [ "${reuse_win7}" != "yes" ]
-    then
-        boot_auto_ga "IE10 - Win8"
-    else
         boot_auto_ga "IE10 - Win7"
         install_ie_win7 "IE10 - Win7" "https://raw.githubusercontent.com/kbandla/installers/master/MSIE/IE10-Windows6.1-x86-en-us.exe" "0f14b2de0b3cef611b9c1424049e996b"
-    fi
 }
 
 # Build the IE11 virtual machine, reusing the Win7 VM always.
 build_ievm_ie11() {
+    if [ "${reuse_win7}" != "yes" ]
+    then
+        boot_auto_ga "IE10 - Win81"
+    else
     boot_auto_ga "IE11 - Win7"
     install_ie_win7 "IE11 - Win7" "http://download.microsoft.com/download/9/2/F/92FC119C-3BCD-476C-B425-038A39625558/IE11-Windows6.1-x86-en-us.exe" "7d3479b9007f3c0670940c1b10a3615f"
+    fi
 }
 
 # ## Main Entry Point
