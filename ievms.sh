@@ -202,17 +202,17 @@ wait_for_guestcontrol() {
 }
 
 # Find or download the ievms control ISO.
-find_iso() {
-    local url="https://github.com/xdissent/ievms/releases/download/v${ievms_version}/ievms-control.iso"
-    local dev_iso="${orig_cwd}/ievms-control.iso" # Use local iso if in ievms dev root
-    if [[ -f "${dev_iso}" ]]
-    then
-        iso="${ievms_home}/ievms-control.iso"
-    else
-        iso="${ievms_home}/ievms-control.iso"
-        download "ievms control ISO" "${url}" "${iso}" "f0c1b72e67a605a9a0f0c86b0c2866e9"
-    fi
-}
+#find_iso() {
+#    local url="https://github.com/xdissent/ievms/releases/download/v${ievms_version}/ievms-control.iso"
+#    local dev_iso="${orig_cwd}/ievms-control.iso" # Use local iso if in ievms dev root
+#    if [[ -f "${dev_iso}" ]]
+#    then
+#        iso="${ievms_home}/ievms-control.iso"
+#    else
+#        iso="${ievms_home}/ievms-control.iso"
+#        download "ievms control ISO" "${url}" "${iso}" "f0c1b72e67a605a9a0f0c86b0c2866e9"
+#   fi
+#}
 
 # Attach a dvd image to the virtual machine.
 attach() {
@@ -244,7 +244,7 @@ boot_ievms() {
 # `boot_ievms`, the next boot will attempt automatically install guest additions
 # if present in the drive. It will shut itself down after installation.
 boot_auto_ga() {
-    boot_ievms "${1}"
+    #boot_ievms "${1}"
     attach "${1}" "additions" "Guest Additions"
     start_vm "${1}"
     wait_for_shutdown "${1}"
