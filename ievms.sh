@@ -73,7 +73,7 @@ download() { # name url path md5
     fi
 
     log "Downloading ${1} from ${2} to ${3} (attempt ${attempt} of ${max})"
-    curl ${curl_opts} -L "${2}" -o "${3}" || fail "Failed to download ${2} to ${ievms_home}/${3} using 'curl', error code ($?)"
+    wget "${2}" || fail "Failed to download ${2} to ${ievms_home}/${3} using 'curl', error code ($?)"
     check_md5 "${3}" "${4}" && return 0
 
     if [ "${attempt}" == "${max}" ]
@@ -348,15 +348,12 @@ build_ievm() {
     local version="${1}"
     case $1 in
         6|7|8)
-            os="WinXP"
+            os="Win7"
             if [ "${reuse_xp}" != "yes" ]
             then
                 if [ "$1" == "6" ]; then unit="10"; fi
                 if [ "$1" == "7" ]; then os="Vista"; fi
                 if [ "$1" == "8" ]; then os="Win7"; fi
-            else
-                archive="IE6_WinXP.zip"
-                unit="10"
             fi
             ;;
         9) os="Win7" ;;
@@ -367,7 +364,7 @@ build_ievm() {
                 os="Win8"
             else
                 os="Win7"
-                archive="IE9_Win7.zip"
+                archive="IE9.Win7.zip"
             fi
             ;;
         EDGE)
@@ -381,27 +378,27 @@ build_ievm() {
     esac
 
     local vm="${prefix}${version} - ${os}"
-    local def_archive="${vm/ - /_}.zip"
+    local def_archive="${vm/ - /.}.VirtualBox.zip"
     archive=${archive:-$def_archive}
     unit=${unit:-"11"}
-    local ova="`basename "${archive/_/ - }" .zip`${suffix}.ova"
+    local ova="`basename "${archive/./ - }" .VirtualBox.zip`${suffix}.ova"
 
     local url
     if [ "${os}" == "Win10" ]
     then
-        url="https://az792536.vo.msecnd.net/vms/VMBuild_20160802/VirtualBox/MSEdge/MSEdge.Win10_RS1.VirtualBox.zip"
+        url="https://az792536.vo.msecnd.net/vms/VMBuild_20180425/VirtualBox/MSEdge/MSEdge.Win10.VirtualBox.zip"
     else
-        url="https://az412801.vo.msecnd.net/vhd/IEKitV1_Final/VirtualBox/OSX/${archive}"
+        url="https://az792536.vo.msecnd.net/vms/VMBuild_20150916/VirtualBox/${prefix}${version}/${def_archive}"
     fi
 
     local md5
     case $archive in
-        IE6_WinXP.zip) md5="3d5b7d980296d048de008d28305ca224" ;;
-        IE7_Vista.zip) md5="d5269b2220f5c7fb9786dad513f2c05a" ;;
-        IE8_Win7.zip) md5="21b0aad3d66dac7f88635aa2318a3a55" ;;
-        IE9_Win7.zip) md5="58d201fe7dc7e890ad645412264f2a2c" ;;
-        IE10_Win8.zip) md5="cc4e2f4b195e1b1e24e2ce6c7a6f149c" ;;
-        MSEdge_Win10.zip) md5="467d8286cb8cbed90f0761c3566abdda" ;;
+        IE8.Win7.VirtualBox.zip) md5="342e3d2d163f3ce345cfaa9cb5fa8012" ;;
+        IE9.Win7.VirtualBox.zip) md5="0e1d3669b426fce8b0d772665f113302" ;;
+        # IE10.Win7.VirtualBox.zip) md5="21d0dee59fd11bdfce237864ef79063b" ;;
+        IE11.Win7.VirtualBox.zip) md5="48f7ab9070c7703cf50634479b8ead38" ;;
+        IE11.Win81.VirtualBox.zip) md5="896db7a54336982241d25f704f35d6c2" ;;
+        MSEdge.Win10.VirtualBox.zip) md5="fdbcfb79d36c6ffd424c9d36a88ddc02" ;;
     esac
 
     log "Checking for existing OVA at ${ievms_home}/${ova}"
@@ -435,34 +432,11 @@ build_ievm() {
     fi
 }
 
-# Build the IE6 virtual machine.
-build_ievm_ie6() {
-    boot_auto_ga "IE6 - WinXP"
-    set_xp_password "IE6 - WinXP"
-    shutdown_xp "IE6 - WinXP"
-}
-
-# Build the IE7 virtual machine, reusing the XP VM if requested (the default).
-build_ievm_ie7() {
-    if [ "${reuse_xp}" != "yes" ]
-    then
-        boot_auto_ga "IE7 - Vista"
-    else
-        boot_auto_ga "IE7 - WinXP"
-        set_xp_password "IE7 - WinXP"
-        install_ie_xp "IE7 - WinXP" "http://download.microsoft.com/download/3/8/8/38889dc1-848c-4bf2-8335-86c573ad86d9/IE7-WindowsXP-x86-enu.exe" "ea16789f6fc1d2523f704e8f9afbe906"
-    fi
-}
-
 # Build the IE8 virtual machine, reusing the XP VM if requested (the default).
 build_ievm_ie8() {
     if [ "${reuse_xp}" != "yes" ]
     then
         boot_auto_ga "IE8 - Win7"
-    else
-        boot_auto_ga "IE8 - WinXP"
-        set_xp_password "IE8 - WinXP"
-        install_ie_xp "IE8 - WinXP" "http://download.microsoft.com/download/C/C/0/CC0BD555-33DD-411E-936B-73AC6F95AE11/IE8-WindowsXP-x86-ENU.exe" "616c2e8b12aaa349cd3acb38bf581700"
     fi
 }
 
@@ -498,7 +472,7 @@ check_ext_pack
 check_unar
 
 # Install each requested virtual machine sequentially.
-all_versions="6 7 8 9 10 11 EDGE"
+all_versions="8 9 10 11 EDGE"
 for ver in ${IEVMS_VERSIONS:-$all_versions}
 do
     log "Building IE ${ver} VM"
