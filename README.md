@@ -3,8 +3,8 @@ Overview
 
 Microsoft provides virtual machine disk images to facilitate website testing 
 in multiple versions of IE, regardless of the host operating system. 
-With a single command, you can have IE6, IE7, IE8,
-IE9, IE10, IE11 and MSEdge running in separate virtual machines.
+With a single command, you can have IE8, IE9, IE10, IE11 and MSEdge running 
+in separate virtual machines.
 
 This is a hacked on fork that has been altered to work with the currently available versions and URLs
 for the VMs on Microsoft's site. The original repo can be found [here](https://github.com/xdissent/ievms).
@@ -111,7 +111,7 @@ A full ievms install will require approximately 69G:
     4.5M    unar
     4.1M    unar1.5.zip
      69G    total
-   
+
 You may remove all files except `*.vmdk` after installation and they will be
 re-downloaded if ievms is run again in the future:
 
@@ -134,13 +134,6 @@ Bandwidth requirements
 ----------------------
 
 A full installation will download roughly 12.5G of data.
-
-**NOTE:** Reusing the XP VM for IE7 and IE8 (the default) saves an incredible
-amount of space and bandwidth. If it is disabled (`REUSE_XP=no`) the disk space
-required climbs to 95G (49G if cleaned post-install) and around 22G will be
-downloaded. Reusing the Win7 VM on the other hand (also the default), saves
-tons of bandwidth but pretty much breaks even on disk space. Disable it with 
-`REUSE_WIN7=no`.
 
 
 Features
@@ -191,25 +184,6 @@ variable `REUSE_WIN7` to anything other than `yes`:
 **NOTE:** IE10 uses Win7 by default in this fork, and IE11 can use Win7 or Win81
 based on the 'REUSE_WIN7' flag. It currently defaults to 'no', installing with
 Win81.
-
-
-Control ISO
------------
-
-Microsoft's XP image uses a blank password for the `IEUser`, which disallows
-control via Virtualbox's guest control by default. Changing a value in the
-Windows registry enables guest control, but requires accessing the VM's hard
-drive. A solution is to boot the VM with a special boot CD image which attaches
-the hard disk and edits the registry. A custom linux build has been created
-based on [the ntpasswd bootdisk](http://pogostick.net/~pnh/ntpasswd/) which
-makes the required registry edits and simply powers off the machine. The ievms
-script may then use Virtualbox guest controls to manage the VM.
-
-The control ISO is built within a [Vagrant](http://vagrantup.com) Ubuntu VM.
-If you'd like to build it yourself, clone the ievms repository, install
-Vagrant and run `vagrant up`. The base ntpasswd boot disk will be downloaded, 
-unpacked and customized within the Vagrant VM. A custom linux kernel is 
-cross-compiled for the image as well.
 
 
 Acknowledgements
