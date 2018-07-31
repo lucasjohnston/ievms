@@ -43,9 +43,9 @@ Installation
 
         curl -s https://raw.githubusercontent.com/amichaelparker/ievms/master/ievms.sh | bash
 
-   * To install specific IE versions (IE7, IE9 and EDGE only for example) use:
+   * To install specific IE versions (IE8, IE9 and EDGE only for example) use:
 
-        curl -s https://raw.githubusercontent.com/amichaelparker/ievms/master/ievms.sh | env IEVMS_VERSIONS="7 9 EDGE" bash
+        curl -s https://raw.githubusercontent.com/amichaelparker/ievms/master/ievms.sh | env IEVMS_VERSIONS="8 9 EDGE" bash
 
 **3.)** Launch Virtual Box.
 
