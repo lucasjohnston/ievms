@@ -207,7 +207,7 @@ find_iso() {
     local dev_iso="${orig_cwd}/ievms-control.iso" # Use local iso if in ievms dev root
     if [[ -f "${dev_iso}" ]]
     then
-        iso=$dev_iso
+        iso="${ievms_home}/ievms-control-${ievms_version}.iso"
     else
         iso="${ievms_home}/ievms-control-${ievms_version}.iso"
         download "ievms control ISO" "${url}" "${iso}" "1fe3f95e0731bbcba949564cf9bbe28a"
@@ -347,24 +347,14 @@ build_ievm() {
     local suffix=""
     local version="${1}"
     case $1 in
-        6|7|8)
-            os="Win7"
-            if [ "${reuse_xp}" != "yes" ]
-            then
-                if [ "$1" == "6" ]; then unit="10"; fi
-                if [ "$1" == "7" ]; then os="Vista"; fi
-                if [ "$1" == "8" ]; then os="Win7"; fi
-            fi
-            ;;
-        9) os="Win7" ;;
-        10|11)
+        8|9|10) os="Win7" ;;
+        11)
             if [ "${reuse_win7}" != "yes" ]
             then
-                if [ "$1" == "11" ]; then fail "IE11 is only available if REUSE_WIN7 is set"; fi
-                os="Win8"
+                if [ "$1" == "11" ]; then os="Win81"; fi
             else
                 os="Win7"
-                archive="IE9.Win7.VirtualBox.zip"
+                archive="IE11.Win7.VirtualBox.zip"
             fi
             ;;
         EDGE)
@@ -381,7 +371,7 @@ build_ievm() {
     local def_archive="${vm/ - /.}.VirtualBox.zip"
     archive=$def_archive
     unit=${unit:-"11"}
-    local ova="`basename "${archive/./ - }" .VirtualBox.zip`${suffix}.ova"
+    local ova="`basename "${archive/./ - }" .VirtualBox.zip`.ova"
 
     local url
     if [ "${os}" == "Win10" ]
@@ -396,7 +386,7 @@ build_ievm() {
         IE8.Win7.VirtualBox.zip) md5="342e3d2d163f3ce345cfaa9cb5fa8012" ;;
         IE9.Win7.VirtualBox.zip) md5="0e1d3669b426fce8b0d772665f113302" ;;
         IE10.Win7.VirtualBox.zip) md5="21d0dee59fd11bdfce237864ef79063b" ;;
-        #IE11.Win7.VirtualBox.zip) md5="48f7ab9070c7703cf50634479b8ead38" ;;
+        IE11.Win7.VirtualBox.zip) md5="48f7ab9070c7703cf50634479b8ead38" ;;
         IE11.Win81.VirtualBox.zip) md5="896db7a54336982241d25f704f35d6c2" ;;
         MSEdge.Win10.VirtualBox.zip) md5="fdbcfb79d36c6ffd424c9d36a88ddc02" ;;
     esac
