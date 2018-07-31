@@ -14,9 +14,6 @@ ievms_version="0.3.3"
 # Options passed to each `curl` command.
 curl_opts=${CURL_OPTS:-""}
 
-# Reuse XP virtual machines for IE versions that are supported.
-reuse_xp=${REUSE_XP:-"yes"}
-
 # Reuse Win7 virtual machines for IE versions that are supported.
 reuse_win7=${REUSE_WIN7:-"no"}
 
@@ -201,19 +198,6 @@ wait_for_guestcontrol() {
     done
 }
 
-# Find or download the ievms control ISO.
-#find_iso() {
-#    local url="https://github.com/xdissent/ievms/releases/download/v${ievms_version}/ievms-control.iso"
-#    local dev_iso="${orig_cwd}/ievms-control.iso" # Use local iso if in ievms dev root
-#    if [[ -f "${dev_iso}" ]]
-#    then
-#        iso="${ievms_home}/ievms-control.iso"
-#    else
-#        iso="${ievms_home}/ievms-control.iso"
-#        download "ievms control ISO" "${url}" "${iso}" "f0c1b72e67a605a9a0f0c86b0c2866e9"
-#   fi
-#}
-
 # Attach a dvd image to the virtual machine.
 attach() {
     log "Attaching ${3}"
@@ -225,19 +209,6 @@ attach() {
 eject() {
     log "Ejecting ${2}"
     VBoxManage modifyvm "${1}" --dvd none
-}
-
-# Boot the virtual machine with the control ISO in the dvd drive then wait for
-# it to do its magic and shut down. For XP images, the "magic" is simply
-# enabling guest control without a password. For other images, it installs
-# a batch file that runs on first boot to install guest additions and activate
-# the OS if possible.
-boot_ievms() {
-    find_iso
-    attach "${1}" "${iso}" "ievms control ISO"
-    start_vm "${1}"
-    wait_for_shutdown "${1}"
-    eject "${1}" "ievms control ISO"
 }
 
 # Boot the virtual machine with guest additions in the dvd drive. After running
@@ -271,51 +242,6 @@ guest_control_exec() {
     VBoxManage guestcontrol "${vm}" run \
         --username "${guest_user}" --password "${guest_pass}" \
         --exe "${image}" -- "$@"
-}
-
-# Start an XP virtual machine and set the password for the guest user.
-set_xp_password() {
-    start_vm "${1}"
-    wait_for_guestcontrol "${1}"
-
-    log "Setting ${guest_user} password"
-    VBoxManage guestcontrol "${1}" run --username Administrator \
-        --password "${guest_pass}" --exe "net.exe" -- \
-        net.exe user "${guest_user}" "${guest_pass}"
-
-    log "Setting auto logon password"
-    VBoxManage guestcontrol "${1}" run --username Administrator \
-        --password "${guest_pass}" --exe "reg.exe" -- reg.exe add \
-        "HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon" \
-        /f /v DefaultPassword /t REG_SZ /d "${guest_pass}"
-
-    log "Enabling auto admin logon"
-    VBoxManage guestcontrol "${1}" run --username Administrator \
-        --password "${guest_pass}" --exe "reg.exe" -- reg.exe add \
-        "HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon" \
-        /f /v AutoAdminLogon /t REG_SZ /d 1
-}
-
-# Shutdown an XP virtual machine and wait for it to power off.
-shutdown_xp() {
-    log "Shutting down ${1}"
-    guest_control_exec "${1}" "shutdown.exe" /s /f /t 0
-    wait_for_shutdown "${1}"
-}
-
-# Install an alternative version of IE in an XP virtual machine. Downloads the
-# installer, copies it to the vm, then runs it before shutting down.
-install_ie_xp() { # vm url md5
-    local src=`basename "${2}"`
-    local dest="C:\\Documents and Settings\\${guest_user}\\Desktop\\${src}"
-
-    download "${src}" "${2}" "${src}" "${3}"
-    copy_to_vm "${1}" "${src}" "${dest}"
-
-    log "Installing IE" # Always "fails"
-    guest_control_exec "${1}" "${dest}" /passive /norestart || true
-
-    shutdown_xp "${1}"
 }
 
 # Install an alternative version of IE in a Win7 virtual machine. Downloads the
@@ -427,10 +353,7 @@ build_ievm() {
 
 # Build the IE8 virtual machine, reusing the XP VM if requested (the default).
 build_ievm_ie8() {
-    if [ "${reuse_xp}" != "yes" ]
-    then
-        boot_auto_ga "IE8 - Win7"
-    fi
+    boot_auto_ga "IE8 - Win7"
 }
 
 # Build the IE9 virtual machine.
@@ -440,8 +363,8 @@ build_ievm_ie9() {
 
 # Build the IE10 virtual machine, reusing the Win7 VM if requested (the default).
 build_ievm_ie10() {
-        boot_auto_ga "IE10 - Win7"
-        install_ie_win7 "IE10 - Win7" "https://raw.githubusercontent.com/kbandla/installers/master/MSIE/IE10-Windows6.1-x86-en-us.exe" "0f14b2de0b3cef611b9c1424049e996b"
+    boot_auto_ga "IE10 - Win7"
+    install_ie_win7 "IE10 - Win7" "https://raw.githubusercontent.com/kbandla/installers/master/MSIE/IE10-Windows6.1-x86-en-us.exe" "0f14b2de0b3cef611b9c1424049e996b"
 }
 
 # Build the IE11 virtual machine, reusing the Win7 VM always.
