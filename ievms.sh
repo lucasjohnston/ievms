@@ -38,7 +38,7 @@ guest_pass="Passw0rd!"
 log()  { printf '%s\n' "$*" ; return $? ; }
 
 # Print an error message to the console and bail out of the script.
-fail() { log "\nERROR: $*\n" ; exit 1 ; }
+fail() { log "ERROR: $*\n" ; exit 1 ; }
 
 check_md5() {
     local md5
@@ -364,7 +364,7 @@ build_ievm() {
                 os="Win8"
             else
                 os="Win7"
-                archive="IE9.Win7.zip"
+                archive="IE9.Win7.VirtualBox.zip"
             fi
             ;;
         EDGE)
@@ -379,7 +379,7 @@ build_ievm() {
 
     local vm="${prefix}${version} - ${os}"
     local def_archive="${vm/ - /.}.VirtualBox.zip"
-    archive=${archive:-$def_archive}
+    archive=$def_archive
     unit=${unit:-"11"}
     local ova="`basename "${archive/./ - }" .VirtualBox.zip`${suffix}.ova"
 
@@ -395,8 +395,8 @@ build_ievm() {
     case $archive in
         IE8.Win7.VirtualBox.zip) md5="342e3d2d163f3ce345cfaa9cb5fa8012" ;;
         IE9.Win7.VirtualBox.zip) md5="0e1d3669b426fce8b0d772665f113302" ;;
-        # IE10.Win7.VirtualBox.zip) md5="21d0dee59fd11bdfce237864ef79063b" ;;
-        IE11.Win7.VirtualBox.zip) md5="48f7ab9070c7703cf50634479b8ead38" ;;
+        IE10.Win7.VirtualBox.zip) md5="21d0dee59fd11bdfce237864ef79063b" ;;
+        #IE11.Win7.VirtualBox.zip) md5="48f7ab9070c7703cf50634479b8ead38" ;;
         IE11.Win81.VirtualBox.zip) md5="896db7a54336982241d25f704f35d6c2" ;;
         MSEdge.Win10.VirtualBox.zip) md5="fdbcfb79d36c6ffd424c9d36a88ddc02" ;;
     esac
