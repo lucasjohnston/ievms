@@ -15,22 +15,13 @@ ievms_version="0.3.3"
 curl_opts=${CURL_OPTS:-""}
 
 # Reuse Win7 virtual machines for IE versions that are supported.
-reuse_win7=${REUSE_WIN7:-"no"}
+reuse_win7=${REUSE_WIN7:-"yes"}
 
 # Timeout interval to wait between checks for various states.
 sleep_wait="5"
 
 # Time to wait for OS to boot before sending other commands.
 os_boot_wait="20"
-
-# Store the original `cwd`.
-orig_cwd=`pwd`
-
-# The VM user to use for guest control.
-guest_user="IEUser"
-
-# The VM user password to use for guest control.
-guest_pass="Passw0rd!"
 
 # ## Utilities
 
@@ -194,15 +185,6 @@ wait_for_shutdown() {
     done
 }
 
-# Pause execution until guest control is available for a virtual machine.
-wait_for_guestcontrol() {
-    while true ; do
-        log "Waiting for ${1} to be available for guestcontrol..."
-        sleep "${sleep_wait}"
-        VBoxManage showvminfo "${1}" | grep 'Additions run level:' | grep -q "3" && return 0 || true
-    done
-}
-
 # Attach a dvd image to the virtual machine.
 attach() {
     log "Attaching ${3}"
@@ -220,7 +202,6 @@ eject() {
 # `boot_ievms`, the next boot will attempt automatically install guest additions
 # if present in the drive. It will shut itself down after installation.
 boot_auto_ga() {
-    #boot_ievms "${1}"
     attach "${1}" "additions" "Guest Additions"
     start_vm "${1}"
     wait_for_shutdown "${1}"
@@ -230,43 +211,6 @@ boot_auto_ga() {
 start_vm() {
     log "Starting VM ${1}"
     VBoxManage startvm "${1}" --type headless
-}
-
-# Copy a file to the virtual machine from the ievms home folder.
-copy_to_vm() {
-    log "Copying ${2} to ${3}"
-    guest_control_exec "${1}" cmd.exe /c copy "E:\\${2}" "${3}"
-}
-
-# Execute a command with arguments on a virtual machine.
-guest_control_exec() {
-    local vm="${1}"
-    local image="${2}"
-    shift
-    VBoxManage guestcontrol "${vm}" run \
-        --username "${guest_user}" --password "${guest_pass}" \
-        --exe "${image}" -- "$@"
-}
-
-# Install an alternative version of IE in a Win7 virtual machine. Downloads the
-# installer, copies it to the vm, then runs it before shutting down.
-install_ie_win7() { # vm url md5
-    local src=`basename "${2}"`
-    local dest="C:\\Users\\${guest_user}\\Desktop\\${src}"
-
-    download "${src}" "${2}" "${src}" "${3}"
-    start_vm "${1}"
-    wait_for_guestcontrol "${1}"
-    #copy_to_vm "${1}" "${src}" "${dest}"
-
-    log "Installing IE"
-    guest_control_exec "${1}" "cmd.exe" /c \
-        "echo ${dest} /passive /norestart >C:\\Users\\${guest_user}\\ievms.bat"
-    guest_control_exec "${1}" "cmd.exe" /c \
-        "echo shutdown.exe /s /f /t 0 >>C:\\Users\\${guest_user}\\ievms.bat"
-    guest_control_exec "${1}" "schtasks.exe" /run /tn ievms
-
-    wait_for_shutdown "${1}"
 }
 
 # Build an ievms virtual machine given the IE version desired.
@@ -339,7 +283,7 @@ build_ievm() {
     log "Checking for existing ${vm} VM"
     if ! VBoxManage showvminfo "${vm}" >/dev/null 2>/dev/null
     then
-        local disk_path="${vm}-disk1.vmdk" #"${ievms_home}/${vm}-disk1.vmdk" #"~/VirtualBox VMs/${vm}/${vm}-disk1.vmdk"
+        local disk_path="${vm}-disk1.vmdk"
         log "Creating ${vm} VM (disk: ${disk_path})"
         VBoxManage import "${ova}" --vsys 0 --vmname "${vm}" --unit "${unit}" --disk "${disk_path}"
 
@@ -371,17 +315,15 @@ build_ievm_ie9() {
 # Build the IE10 virtual machine, reusing the Win7 VM if requested (the default).
 build_ievm_ie10() {
     boot_auto_ga "IE10 - Win7"
-    install_ie_win7 "IE10 - Win7" "https://raw.githubusercontent.com/kbandla/installers/master/MSIE/IE10-Windows6.1-x86-en-us.exe" "0f14b2de0b3cef611b9c1424049e996b"
 }
 
 # Build the IE11 virtual machine, reusing the Win7 VM always.
 build_ievm_ie11() {
     if [ "${reuse_win7}" != "yes" ]
     then
-        boot_auto_ga "IE10 - Win81"
+        boot_auto_ga "IE11 - Win81"
     else
         boot_auto_ga "IE11 - Win7"
-        install_ie_win7 "IE11 - Win7" "http://download.microsoft.com/download/9/2/F/92FC119C-3BCD-476C-B425-038A39625558/IE11-Windows6.1-x86-en-us.exe" "7d3479b9007f3c0670940c1b10a3615f"
     fi
 }
 

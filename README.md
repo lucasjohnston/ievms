@@ -4,7 +4,8 @@ Overview
 Microsoft provides virtual machine disk images to facilitate website testing 
 in multiple versions of IE, regardless of the host operating system. 
 With a single command, you can have IE8, IE9, IE10, IE11 and MSEdge running 
-in separate virtual machines.
+in separate virtual machines. Each virtual machine comes with the selected 
+version of IE already installed.
 
 This is a hacked on fork that has been altered to work with the currently available versions and URLs
 for the VMs on Microsoft's site. The original repo can be found [here](https://github.com/xdissent/ievms).
