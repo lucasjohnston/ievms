@@ -15,7 +15,7 @@ ievms_version="0.3.3"
 curl_opts=${CURL_OPTS:-""}
 
 # Reuse Win7 virtual machines for IE versions that are supported.
-reuse_win7=${REUSE_WIN7:-"yes"}
+reuse_win7=${REUSE_WIN7:-"no"}
 
 # Timeout interval to wait between checks for various states.
 sleep_wait="5"
