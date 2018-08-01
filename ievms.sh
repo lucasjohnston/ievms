@@ -225,7 +225,11 @@ build_ievm() {
         11)
             if [ "${reuse_win7}" != "yes" ]
             then
-                if [ "$1" == "11" ]; then os="Win81"; fi
+                if [ "$1" == "11" ]
+                then
+                    os="Win81"
+                    unit="8"
+                fi
             else
                 os="Win7"
                 archive="IE11.Win7.VirtualBox.zip"
