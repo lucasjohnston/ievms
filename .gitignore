@@ -1,3 +1,5 @@
 .rvmrc
 .vagrant
 /ievms-control*
+.vscode
+.DS_Store

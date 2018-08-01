@@ -20,6 +20,9 @@ reuse_win7=${REUSE_WIN7:-"no"}
 # Timeout interval to wait between checks for various states.
 sleep_wait="5"
 
+# Time to wait for OS to boot before sending other commands.
+os_boot_wait="20"
+
 # Store the original `cwd`.
 orig_cwd=`pwd`
 
@@ -37,7 +40,7 @@ log()  { printf '%s\n' "$*" ; return $? ; }
 # Print an error message to the console and bail out of the script.
 fail() { log "ERROR: $*\n" ; exit 1 ; }
 
-check_md5() {
+check_md5() { #1 = path, 2 = md5
     local md5
 
     case $kernel in
@@ -182,6 +185,8 @@ check_unar() {
 
 # Pause execution until the virtual machine with a given name shuts down.
 wait_for_shutdown() {
+    sleep "${os_boot_wait}"
+    VBoxManage controlvm "${1}" acpipowerbutton
     while true ; do
         log "Waiting for ${1} to shutdown..."
         sleep "${sleep_wait}"
@@ -201,8 +206,8 @@ wait_for_guestcontrol() {
 # Attach a dvd image to the virtual machine.
 attach() {
     log "Attaching ${3}"
-    VBoxManage storageattach "${1}" --storagectl "IDE Controller" --port 1 \
-        --device 0 --type dvddrive --medium "${2}"
+    VBoxManage storageattach "${1}" --storagectl "IDE Controller" --port 0 \
+        --device 1 --type dvddrive --medium "${2}"
 }
 
 # Eject the dvd image from the virtual machine.
@@ -219,7 +224,6 @@ boot_auto_ga() {
     attach "${1}" "additions" "Guest Additions"
     start_vm "${1}"
     wait_for_shutdown "${1}"
-    eject "${1}" "Guest Additions"
 }
 
 # Start a virtual machine in headless mode.
@@ -295,9 +299,10 @@ build_ievm() {
 
     local vm="${prefix}${version} - ${os}"
     local def_archive="${vm/ - /.}.VirtualBox.zip"
-    archive=$def_archive
-    unit=${unit:-"11"}
+    archive=${archive:-$def_archive}
+    unit=${unit:-"9"}
     local ova="`basename "${archive/./ - }" .VirtualBox.zip`.ova"
+    log "${ova}"
 
     local url
     if [ "${os}" == "Win10" ]
@@ -323,6 +328,8 @@ build_ievm() {
     log "Checking for existing OVA at ${ievms_home}/${ova}"
     if [[ ! -f "${ova}" ]]
     then
+        #local api=curl "https://developer.microsoft.com/en-us/microsoft-edge/api/tools/vms/"
+        #log api
         download "OVA ZIP" "${url}" "${archive}" "${md5}"
 
         log "Extracting OVA from ${ievms_home}/${archive}"
@@ -332,7 +339,7 @@ build_ievm() {
     log "Checking for existing ${vm} VM"
     if ! VBoxManage showvminfo "${vm}" >/dev/null 2>/dev/null
     then
-        local disk_path="${ievms_home}/${vm}-disk1.vmdk"
+        local disk_path="${vm}-disk1.vmdk" #"${ievms_home}/${vm}-disk1.vmdk" #"~/VirtualBox VMs/${vm}/${vm}-disk1.vmdk"
         log "Creating ${vm} VM (disk: ${disk_path})"
         VBoxManage import "${ova}" --vsys 0 --vmname "${vm}" --unit "${unit}" --disk "${disk_path}"
 
@@ -373,8 +380,8 @@ build_ievm_ie11() {
     then
         boot_auto_ga "IE10 - Win81"
     else
-    boot_auto_ga "IE11 - Win7"
-    install_ie_win7 "IE11 - Win7" "http://download.microsoft.com/download/9/2/F/92FC119C-3BCD-476C-B425-038A39625558/IE11-Windows6.1-x86-en-us.exe" "7d3479b9007f3c0670940c1b10a3615f"
+        boot_auto_ga "IE11 - Win7"
+        install_ie_win7 "IE11 - Win7" "http://download.microsoft.com/download/9/2/F/92FC119C-3BCD-476C-B425-038A39625558/IE11-Windows6.1-x86-en-us.exe" "7d3479b9007f3c0670940c1b10a3615f"
     fi
 }
 
