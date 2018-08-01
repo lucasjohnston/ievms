@@ -245,7 +245,7 @@ guest_control_exec() {
     shift
     VBoxManage guestcontrol "${vm}" run \
         --username "${guest_user}" --password "${guest_pass}" \
-        --exe "${ievms_home}/${image}" -- "$@"
+        --exe "${image}" -- "$@"
 }
 
 # Install an alternative version of IE in a Win7 virtual machine. Downloads the
@@ -257,7 +257,7 @@ install_ie_win7() { # vm url md5
     download "${src}" "${2}" "${src}" "${3}"
     start_vm "${1}"
     wait_for_guestcontrol "${1}"
-    copy_to_vm "${1}" "${src}" "${dest}"
+    #copy_to_vm "${1}" "${src}" "${dest}"
 
     log "Installing IE"
     guest_control_exec "${1}" "cmd.exe" /c \
