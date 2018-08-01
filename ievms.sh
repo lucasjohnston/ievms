@@ -245,7 +245,7 @@ guest_control_exec() {
     shift
     VBoxManage guestcontrol "${vm}" run \
         --username "${guest_user}" --password "${guest_pass}" \
-        --exe "${image}" -- "$@"
+        --exe "${ievms_home}/${image}" -- "$@"
 }
 
 # Install an alternative version of IE in a Win7 virtual machine. Downloads the
