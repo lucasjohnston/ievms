@@ -280,7 +280,6 @@ build_ievm() {
     archive=${archive:-$def_archive}
     unit=${unit:-"9"}
     local ova="`basename "${archive/./ - }" .VirtualBox.zip`.ova"
-    log "${ova}"
 
     local url
     if [ "${os}" == "Win10" ]

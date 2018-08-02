@@ -278,7 +278,6 @@ build_ievm() {
     archive=${archive:-$def_archive}
     unit=${unit:-"9"}
     local ova="`basename "${archive/./ - }" .VirtualBox.zip`.ova"
-    log "${ova}"
 
     log "Checking for existing OVA at ${ievms_home}/${ova}"
     local url
@@ -297,16 +296,16 @@ build_ievm() {
         # JSON output is different for Edge
         if [ "${list_version}" == "5" ]
         then
-            url=$(node -pe 'JSON.parse(process.argv[1])['${list_version}'].software[0].files[0].url' "$(curl -s https://developer.microsoft.com/en-us/microsoft-edge/api/tools/vms/)")
-            get_md5=$(node -pe 'JSON.parse(process.argv[1])[5].software[0].files[0].md5' "$(curl -s https://developer.microsoft.com/en-us/microsoft-edge/api/tools/vms/)")
+            url=$(node -pe "JSON.parse(process.argv[1])["${list_version}"].software[0].files[0].url" "$(curl -s https://developer.microsoft.com/en-us/microsoft-edge/api/tools/vms/)")
+            get_md5=$(node -pe "JSON.parse(process.argv[1])[5].software[0].files[0].md5" "$(curl -s https://developer.microsoft.com/en-us/microsoft-edge/api/tools/vms/)")
             log "Grabbing md5 file to parse for md5 string"
-            md5=$(curl "${get_md5}" | awk '{print tolower($0)}')
+            md5=$(curl "${get_md5}" | awk "{print tolower($0)}")
         else
-            url=$(node -pe 'JSON.parse(process.argv[1])['${list_version}'].software[0].files[1].url' "$(curl -s https://developer.microsoft.com/en-us/microsoft-edge/api/tools/vms/)")
+            url=$(node -pe "JSON.parse(process.argv[1])["${list_version}"].software[0].files[1].url" "$(curl -s https://developer.microsoft.com/en-us/microsoft-edge/api/tools/vms/)")
             # md5 url is incorrect on the api itself for every option but Edge
-            get_md5=$(node -pe 'JSON.parse(process.argv[1])[5].software[0].files[0].md5.slice(0, 31).concat("vms" + JSON.parse(process.argv[1])[5].software[0].files[0].md5.slice(34,))' "$(curl -s https://developer.microsoft.com/en-us/microsoft-edge/api/tools/vms/)")
+            get_md5=$(node -pe "JSON.parse(process.argv[1])[5].software[0].files[0].md5.slice(0, 31).concat("vms" + JSON.parse(process.argv[1])[5].software[0].files[0].md5.slice(34,))" "$(curl -s https://developer.microsoft.com/en-us/microsoft-edge/api/tools/vms/)")
             log "Grabbing md5 file to parse for md5 string"
-            md5=$(curl "${get_md5}" | awk '{print tolower($0)}')
+            md5=$(curl "${get_md5}" | awk "{print tolower($0)}")
         fi
 
         download "OVA ZIP" "${url}" "${archive}" "${md5}"
