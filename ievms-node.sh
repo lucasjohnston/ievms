@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-# This version of the file works without node by hard coding download links.
-
 # Caution is a virtue.
 set -o nounset
 set -o errtrace
@@ -32,24 +30,6 @@ log()  { printf '%s\n' "$*" ; return $? ; }
 
 # Print an error message to the console and bail out of the script.
 fail() { log "ERROR: $*\n" ; exit 1 ; }
-
-function readJson {
-  UNAMESTR=`uname`
-  if [[ "$UNAMESTR" == 'Linux' ]]; then
-    SED_EXTENDED='-r'
-  elif [[ "$UNAMESTR" == 'Darwin' ]]; then
-    SED_EXTENDED='-E'
-  fi;
-
-  VALUE=`grep -m 1 "\"${2}\"" ${1} | sed ${SED_EXTENDED} 's/^ *//;s/.*: *"//;s/",?//'`
-
-  if [ ! "$VALUE" ]; then
-    echo "Error: Cannot find \"${2}\" in ${1}" >&2;
-    exit 1;
-  else
-    echo $VALUE ;
-  fi;
-}
 
 check_md5() { #1 = path, 2 = md5
     local md5
@@ -301,29 +281,52 @@ build_ievm() {
     log "${ova}"
 
     local url
-    if [ "${os}" == "Win10" ]
-    then
-        url="https://az792536.vo.msecnd.net/vms/VMBuild_20180425/VirtualBox/MSEdge/MSEdge.Win10.VirtualBox.zip"
-    elif [ "${os}" == "Win81" ]
-    then
-        url="https://az792536.vo.msecnd.net/vms/VMBuild_20180102/VirtualBox/IE11/IE11.Win81.VirtualBox.zip"
-    else
-        url="https://az792536.vo.msecnd.net/vms/VMBuild_20150916/VirtualBox/${prefix}${version}/${archive}"
-    fi
+    # if [ "${os}" == "Win10" ]
+    # then
+    #     url="https://az792536.vo.msecnd.net/vms/VMBuild_20180425/VirtualBox/MSEdge/MSEdge.Win10.VirtualBox.zip"
+    # elif [ "${os}" == "Win81" ]
+    # then
+    #     url="https://az792536.vo.msecnd.net/vms/VMBuild_20180102/VirtualBox/IE11/IE11.Win81.VirtualBox.zip"
+    # else
+    #     url="https://az792536.vo.msecnd.net/vms/VMBuild_20150916/VirtualBox/${prefix}${version}/${archive}"
+    # fi
 
-    local md5
-    case $archive in
-        IE8.Win7.VirtualBox.zip) md5="342e3d2d163f3ce345cfaa9cb5fa8012" ;;
-        IE9.Win7.VirtualBox.zip) md5="0e1d3669b426fce8b0d772665f113302" ;;
-        IE10.Win7.VirtualBox.zip) md5="21d0dee59fd11bdfce237864ef79063b" ;;
-        IE11.Win7.VirtualBox.zip) md5="24675c913c4a74c87dc11f8ccb6c8f9e" ;;
-        IE11.Win81.VirtualBox.zip) md5="896db7a54336982241d25f704f35d6c2" ;;
-        MSEdge.Win10.VirtualBox.zip) md5="fdbcfb79d36c6ffd424c9d36a88ddc02" ;;
-    esac
+    # local md5
+    # case $archive in
+    #     IE8.Win7.VirtualBox.zip) md5="342e3d2d163f3ce345cfaa9cb5fa8012" ;;
+    #     IE9.Win7.VirtualBox.zip) md5="0e1d3669b426fce8b0d772665f113302" ;;
+    #     IE10.Win7.VirtualBox.zip) md5="21d0dee59fd11bdfce237864ef79063b" ;;
+    #     IE11.Win7.VirtualBox.zip) md5="24675c913c4a74c87dc11f8ccb6c8f9e" ;;
+    #     IE11.Win81.VirtualBox.zip) md5="896db7a54336982241d25f704f35d6c2" ;;
+    #     MSEdge.Win10.VirtualBox.zip) md5="fdbcfb79d36c6ffd424c9d36a88ddc02" ;;
+    # esac
 
     log "Checking for existing OVA at ${ievms_home}/${ova}"
+    local list_version
+    local get_md5
     if [[ ! -f "${ova}" ]]
     then
+        case $vm in
+            'IE8 - Win7') list_version="0";;
+            'IE9 - Win7') list_version="1";;
+            'IE10 - Win7') list_version="2";;
+            'IE11 - Win7') list_version="3";;
+            'IE11 - Win81') list_version="4";;
+            'MSEdge - Win10') list_version="5";;
+        esac
+        # JSON output is different for Edge
+        if [ "${list_version}" == "5" ]
+        then
+            url=$(node -pe 'JSON.parse(process.argv[1])['${list_version}'].software[0].files[0].url' "$(curl -s https://developer.microsoft.com/en-us/microsoft-edge/api/tools/vms/)")
+            get_md5=$(node -pe 'JSON.parse(process.argv[1])[5].software[0].files[0].md5' "$(curl -s https://developer.microsoft.com/en-us/microsoft-edge/api/tools/vms/)")
+            md5=$(curl "${get_md5}" | awk '{print tolower($0)}')
+        else
+            url=$(node -pe 'JSON.parse(process.argv[1])['${list_version}'].software[0].files[1].url' "$(curl -s https://developer.microsoft.com/en-us/microsoft-edge/api/tools/vms/)")
+            # md5 url is incorrect on the api itself for every option but Edge
+            get_md5=$(node -pe 'JSON.parse(process.argv[1])[5].software[0].files[0].md5.slice(0, 31).concat("vms" + JSON.parse(process.argv[1])[5].software[0].files[0].md5.slice(34,))' "$(curl -s https://developer.microsoft.com/en-us/microsoft-edge/api/tools/vms/)")
+            md5=$(curl "${get_md5}" | awk '{print tolower($0)}')
+        fi
+
         download "OVA ZIP" "${url}" "${archive}" "${md5}"
 
         log "Extracting OVA from ${ievms_home}/${archive}"
@@ -393,11 +396,11 @@ check_ext_pack
 check_unar
 
 # Install each requested virtual machine sequentially.
-all_versions="8 9 10 11 EDGE"
+all_versions="8"
 for ver in ${IEVMS_VERSIONS:-$all_versions}
 do
     log "Building IE ${ver} VM"
-    build_ievm EDGE #$ver
+    build_ievm $ver
 done
 
 # We made it!

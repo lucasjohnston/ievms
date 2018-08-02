@@ -8,6 +8,11 @@ in separate virtual machines. Each virtual machine comes with the selected
 version of IE already installed. IE11 machines can be selected with Windows 7 
 or Windows 8.1.
 
+The original script works as it originally did, with hard-coded urls and md5 
+values. The 'ievms-node' script uses Node to hit the MS api and grab the current 
+correct url and md5 hashes. This version should be a little more future-proof, 
+but obviously requires having Node installed.
+
 This is a hacked on fork that has been altered to work with the currently available versions and URLs
 for the VMs on Microsoft's site. The original repo can be found [here](https://github.com/xdissent/ievms).
 The linked pledgie is for the original author.
