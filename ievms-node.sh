@@ -303,8 +303,7 @@ build_ievm() {
         else
             url=$(node -pe "JSON.parse(process.argv[1])["${list_version}"].software[0].files[1].url" "$(curl -s https://developer.microsoft.com/en-us/microsoft-edge/api/tools/vms/)")
             # md5 url is incorrect on the api itself for every option but Edge
-            local md5_correct="vms"
-            get_md5=$(node -pe 'JSON.parse(process.argv[1])[5].software[0].files[0].md5.slice(0, 31).concat('${md5_correct}' + JSON.parse(process.argv[1])[5].software[0].files[0].md5.slice(34,))' "$(curl -s https://developer.microsoft.com/en-us/microsoft-edge/api/tools/vms/)")
+            get_md5=$(node -pe 'JSON.parse(process.argv[1])[5].software[0].files[0].md5.slice(0, 31).concat("vms", + JSON.parse(process.argv[1])[5].software[0].files[0].md5.slice(34,))' "$(curl -s https://developer.microsoft.com/en-us/microsoft-edge/api/tools/vms/)")
             log "Grabbing md5 file to parse for md5 string"
             md5=$(curl "${get_md5}" | awk "{print tolower($0)}")
         fi
