@@ -297,7 +297,7 @@ build_ievm() {
         if [ "${list_version}" == "5" ]
         then
             url=$(node -pe "JSON.parse(process.argv[1])["${list_version}"].software[0].files[0].url" "$(curl -s https://developer.microsoft.com/en-us/microsoft-edge/api/tools/vms/)")
-            get_md5=$(node -pe 'JSON.parse(process.argv[1])[5].software[0].files[0].md5' "$(curl -s https://developer.microsoft.com/en-us/microsoft-edge/api/tools/vms/)")
+            get_md5=$(node -pe "JSON.parse(process.argv[1])[5].software[0].files[0].md5" "$(curl -s https://developer.microsoft.com/en-us/microsoft-edge/api/tools/vms/)")
             log "Grabbing md5 file to parse for md5 string"
             md5=$(curl "${get_md5}" | tr '[:upper:]' '[:lower:]')
         else
