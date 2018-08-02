@@ -27,6 +27,10 @@ Just paste this into a terminal:
 
     curl -s https://raw.githubusercontent.com/amichaelparker/ievms/master/ievms.sh | bash
 
+or:
+
+    curl -s https://raw.githubusercontent.com/amichaelparker/ievms/master/ievms-node.sh | bash
+
 
 Requirements
 ============
@@ -48,11 +52,11 @@ Installation
 
    * To install IE versions 8, 9, 10, 11 and EDGE use:
 
-        curl -s https://raw.githubusercontent.com/amichaelparker/ievms/master/ievms.sh | bash
+        curl -s https://raw.githubusercontent.com/amichaelparker/ievms/master/ievms-node.sh | bash
 
    * To install specific IE versions (IE8, IE9 and EDGE only for example) use:
 
-        curl -s https://raw.githubusercontent.com/amichaelparker/ievms/master/ievms.sh | env IEVMS_VERSIONS="8 9 EDGE" bash
+        curl -s https://raw.githubusercontent.com/amichaelparker/ievms/master/ievms-node.sh | env IEVMS_VERSIONS="8 9 EDGE" bash
 
 **3.)** Launch Virtual Box.
 
