@@ -33,24 +33,6 @@ log()  { printf '%s\n' "$*" ; return $? ; }
 # Print an error message to the console and bail out of the script.
 fail() { log "ERROR: $*\n" ; exit 1 ; }
 
-function readJson {
-  UNAMESTR=`uname`
-  if [[ "$UNAMESTR" == 'Linux' ]]; then
-    SED_EXTENDED='-r'
-  elif [[ "$UNAMESTR" == 'Darwin' ]]; then
-    SED_EXTENDED='-E'
-  fi;
-
-  VALUE=`grep -m 1 "\"${2}\"" ${1} | sed ${SED_EXTENDED} 's/^ *//;s/.*: *"//;s/",?//'`
-
-  if [ ! "$VALUE" ]; then
-    echo "Error: Cannot find \"${2}\" in ${1}" >&2;
-    exit 1;
-  else
-    echo $VALUE ;
-  fi;
-}
-
 check_md5() { #1 = path, 2 = md5
     local md5
 
@@ -397,7 +379,7 @@ all_versions="8 9 10 11 EDGE"
 for ver in ${IEVMS_VERSIONS:-$all_versions}
 do
     log "Building IE ${ver} VM"
-    build_ievm EDGE #$ver
+    build_ievm $ver
 done
 
 # We made it!

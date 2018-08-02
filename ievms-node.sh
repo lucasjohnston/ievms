@@ -280,28 +280,8 @@ build_ievm() {
     local ova="`basename "${archive/./ - }" .VirtualBox.zip`.ova"
     log "${ova}"
 
-    local url
-    # if [ "${os}" == "Win10" ]
-    # then
-    #     url="https://az792536.vo.msecnd.net/vms/VMBuild_20180425/VirtualBox/MSEdge/MSEdge.Win10.VirtualBox.zip"
-    # elif [ "${os}" == "Win81" ]
-    # then
-    #     url="https://az792536.vo.msecnd.net/vms/VMBuild_20180102/VirtualBox/IE11/IE11.Win81.VirtualBox.zip"
-    # else
-    #     url="https://az792536.vo.msecnd.net/vms/VMBuild_20150916/VirtualBox/${prefix}${version}/${archive}"
-    # fi
-
-    # local md5
-    # case $archive in
-    #     IE8.Win7.VirtualBox.zip) md5="342e3d2d163f3ce345cfaa9cb5fa8012" ;;
-    #     IE9.Win7.VirtualBox.zip) md5="0e1d3669b426fce8b0d772665f113302" ;;
-    #     IE10.Win7.VirtualBox.zip) md5="21d0dee59fd11bdfce237864ef79063b" ;;
-    #     IE11.Win7.VirtualBox.zip) md5="24675c913c4a74c87dc11f8ccb6c8f9e" ;;
-    #     IE11.Win81.VirtualBox.zip) md5="896db7a54336982241d25f704f35d6c2" ;;
-    #     MSEdge.Win10.VirtualBox.zip) md5="fdbcfb79d36c6ffd424c9d36a88ddc02" ;;
-    # esac
-
     log "Checking for existing OVA at ${ievms_home}/${ova}"
+    local url
     local list_version
     local get_md5
     if [[ ! -f "${ova}" ]]
@@ -396,7 +376,7 @@ check_ext_pack
 check_unar
 
 # Install each requested virtual machine sequentially.
-all_versions="8"
+all_versions="8 9 10 11 EDGE"
 for ver in ${IEVMS_VERSIONS:-$all_versions}
 do
     log "Building IE ${ver} VM"
