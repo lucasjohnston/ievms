@@ -19,6 +19,11 @@ The linked pledgie is for the original author.
 
 [![Click here to lend your support to ievms and make a donation at pledgie.com!](http://pledgie.com/campaigns/15995.png?skin_name=chrome)](http://pledgie.com/campaigns/15995)
 
+Known Issues
+============
+
+* IE11 - Win81 MD5 URL is dead, and I'm unable to determine a working one. Win7 is
+currently set to 'yes' for IE11 to use Win7 as the default.
 
 Quickstart
 ==========
