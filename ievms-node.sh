@@ -15,7 +15,7 @@ ievms_version="0.3.3"
 curl_opts=${CURL_OPTS:-""}
 
 # Reuse Win7 virtual machines for IE versions that are supported.
-reuse_win7=${REUSE_WIN7:-"yes"}
+reuse_win7=${REUSE_WIN7:-"no"}
 
 # Timeout interval to wait between checks for various states.
 sleep_wait="5"
@@ -308,7 +308,13 @@ build_ievm() {
             md5=$(curl "${get_md5}" | tr '[:upper:]' '[:lower:]')
         fi
 
-        download "OVA ZIP" "${url}" "${archive}" "${md5}"
+        # md5 link is broken in MS API for Win81 version of IE11, insert hard-coded workaround here:
+        if [ "${list_version}" == "4" ]
+        then
+            download "OVA ZIP" "${url}" "${archive}" "896db7a54336982241d25f704f35d6c2"
+        else
+            download "OVA ZIP" "${url}" "${archive}" "${md5}"
+        fi
 
         log "Extracting OVA from ${ievms_home}/${archive}"
         unar "${archive}" || fail "Failed to extract ${archive} to ${ievms_home}/${ova}, unar command returned error code $?"
