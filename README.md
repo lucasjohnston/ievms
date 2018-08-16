@@ -9,7 +9,7 @@ version of IE already installed. IE11 machines can be selected with Windows 7
 or Windows 8.1.
 
 The original script works as it originally did, with hard-coded urls and md5 
-values. The 'ievms-node' script uses Node to hit the MS api and grab the current 
+values. The 'ievms-node' script uses Node to hit the Microsoft API and grab the current 
 correct url and md5 hashes. This version should be a little more future-proof, 
 but obviously requires having Node installed.
 
@@ -38,9 +38,10 @@ Requirements
 * VirtualBox > 5.0 (http://virtualbox.org), select 'command line utilities' during installation
 * Curl (Ubuntu: `sudo apt-get install curl`)
 * Linux Only: unar (Ubuntu: `sudo apt-get install unar`) (Might need this for Mac as well)
+* Node (Recommended)
 * Patience
 
-**NOTE** Use [ievms version 0.2.1](https://github.com/amichaelparker/ievms/raw/v0.2.1/ievms.sh) for VirtualBox < 5.0.
+**NOTE** Use [ievms version 0.2.1](https://github.com/xdissent/ievms/raw/v0.2.1/ievms.sh) for VirtualBox < 5.0.
 
 
 Installation
