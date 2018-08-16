@@ -22,8 +22,8 @@ The linked pledgie is for the original author.
 Known Issues
 ============
 
-* IE11 - Win81 MD5 URL is dead, and I'm unable to determine a working one. Win7 is
-currently set to 'yes' for IE11 to use Win7 as the default.
+* IE11 - Win81 MD5 URL is dead, and I'm unable to determine a working one. MD5 has been temporarily
+hard-coded as a workaround.
 
 Quickstart
 ==========
