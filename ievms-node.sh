@@ -103,10 +103,16 @@ check_system() {
     esac
 }
 
+# Ensure Brew is installed and `brew` is on the `PATH`.
+check_homebrew() {
+    log "Checking for Homebrew"
+    hash brew || ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" </dev/null
+}
+
 # Ensure VirtualBox is installed and `VBoxManage` is on the `PATH`.
 check_virtualbox() {
     log "Checking for VirtualBox"
-    hash VBoxManage 2>&- || fail "VirtualBox command line utilities are not installed, please (re)install! (http://virtualbox.org)"
+    hash VBoxManage 2>&- || brew cask install virtualbox
 }
 
 # Determine the VirtualBox version details, querying the download page to ensure
@@ -378,6 +384,7 @@ build_ievm_ie11() {
 # Run through all checks to get the host ready for installation.
 check_system
 create_home
+check_homebrew
 check_virtualbox
 check_ext_pack
 check_unar
